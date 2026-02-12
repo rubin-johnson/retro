@@ -1,0 +1,10 @@
+{
+  "name": "retro",
+  "version": "0.1.0",
+  "description": "Structured error and success logging for agentic coding. Log what went wrong, trace it back to your input, and generate CLAUDE.md rules from patterns.",
+  "author": {
+    "name": "rujohnson"
+  },
+  "license": "MIT",
+  "keywords": ["agentic", "logging", "errors", "patterns", "retrospective"]
+}
