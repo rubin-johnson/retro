@@ -6,6 +6,18 @@ description: Log an agentic coding error with a structured interview
 
 You are logging an agentic coding error. The goal is to trace the error back to the USER's input -- what they prompted, what context they provided, what guardrails they set (or didn't).
 
+## Invocation Modes
+
+- **Interactive (default)** -- `/retro:error` -- run the full interview below.
+- **Auto (non-interactive)** -- `/retro:error --auto` -- zero user prompts. Intended for programmatic callers (fix-loop, checkpoint). Claude drafts the full payload from conversation context and writes to the DB directly. **Skip steps 1, 2, 3, 4, 5, and 7. Go directly to step 6 with the drafted payload, then print only the returned entry ID.**
+
+When `--auto` is set:
+- Do NOT call `AskUserQuestion` at any point.
+- **Load the `agentic-interview` skill anyway** -- you still need the taxonomy. The only valid `category` values are `context`, `harness`, `meta`, `prompt`, `workflow`. Anything else will be rejected by `db.py`. Subcategories are free-form text but should match the taxonomy table (e.g., `prompt/missing-constraints`, `context/stale-context`).
+- Build the payload from conversation context alone: the reviewer finding or bug description, the file/line, the fix applied, and the conversation turn that introduced the bug.
+- If required fields (`summary`, `description`, `category`) cannot be drafted from context, abort silently and print `retro:skipped (insufficient context)` -- do not prompt.
+- Output exactly one line: `retro:logged #<id> <category>` (or the skip line above). Nothing else.
+
 ## Setup
 
 1. Load the `agentic-interview` skill for taxonomy and interview methodology.
