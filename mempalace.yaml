@@ -1,0 +1,14 @@
+wing: retro
+rooms:
+- name: scripts
+  description: Files from scripts/
+- name: testing
+  description: Files from tests/
+- name: commands
+  description: Files from commands/
+- name: skills
+  description: Files from skills/
+- name: hooks
+  description: Files from hooks/
+- name: general
+  description: Files that don't fit other rooms
