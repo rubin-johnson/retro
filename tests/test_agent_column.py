@@ -1,22 +1,18 @@
 import json, os, sys
-from pathlib import Path
+import sqlite3
 import pytest
-
-SCRIPTS_DIR = str(Path(__file__).parent.parent / "scripts")
+from retro import db as rdb
 
 
 def _make_db(tmp_path):
-    if SCRIPTS_DIR not in sys.path:
-        sys.path.insert(0, SCRIPTS_DIR)
-    import db as rdb
     path = str(tmp_path / "test.db")
     conn = rdb.ensure_db(path)
     conn.close()
-    return path, rdb
+    return path
 
 
 def test_agent_column_exists(tmp_path):
-    path, rdb = _make_db(tmp_path)
+    path = _make_db(tmp_path)
     conn = rdb.ensure_db(path)
     cols = [r[1] for r in conn.execute("PRAGMA table_info(entries)").fetchall()]
     conn.close()
@@ -24,7 +20,7 @@ def test_agent_column_exists(tmp_path):
 
 
 def test_agent_stored(tmp_path):
-    path, rdb = _make_db(tmp_path)
+    path = _make_db(tmp_path)
     conn = rdb.ensure_db(path)
     entry_id = rdb.insert_entry(conn, "error", {
         "summary": "test", "description": "desc", "category": "prompt", "agent": "codex"
@@ -36,7 +32,6 @@ def test_agent_stored(tmp_path):
 
 def test_migration_v1_to_v2(tmp_path):
     """Existing v1 DB gets agent column without data loss."""
-    import sqlite3
     path = str(tmp_path / "v1.db")
     conn = sqlite3.connect(path)
     conn.execute("PRAGMA journal_mode=WAL")
@@ -55,9 +50,6 @@ def test_migration_v1_to_v2(tmp_path):
     conn.commit()
     conn.close()
 
-    if SCRIPTS_DIR not in sys.path:
-        sys.path.insert(0, SCRIPTS_DIR)
-    import db as rdb
     conn = rdb.ensure_db(path)
     cols = [r[1] for r in conn.execute("PRAGMA table_info(entries)").fetchall()]
     count = conn.execute("SELECT COUNT(*) FROM entries").fetchone()[0]
@@ -67,7 +59,7 @@ def test_migration_v1_to_v2(tmp_path):
 
 
 def test_filter_by_agent(tmp_path):
-    path, rdb = _make_db(tmp_path)
+    path = _make_db(tmp_path)
     conn = rdb.ensure_db(path)
     rdb.insert_entry(conn, "error", {"summary": "a", "description": "d", "category": "prompt", "agent": "claude"})
     rdb.insert_entry(conn, "error", {"summary": "b", "description": "d", "category": "prompt", "agent": "codex"})
