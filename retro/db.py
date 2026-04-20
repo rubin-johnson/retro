@@ -109,7 +109,7 @@ def insert_entry(conn, entry_type, data):
             data.get("what_worked"),
             data.get("why_it_worked"),
             tags,
-            data.get("agent"),
+            data.get("agent") or os.environ.get("RETRO_AGENT"),
         ),
     )
     conn.commit()
